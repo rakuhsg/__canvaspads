@@ -7,7 +7,17 @@ struct State {
 }
 
 class RAppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+            let mainMenu = NSMenu()
 
+            let appMenuItem = NSMenuItem()
+            mainMenu.addItem(appMenuItem)
+            let appMenu = NSMenu()
+            appMenuItem.submenu = appMenu
+            appMenu.addItem(withTitle: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+
+            NSApp.mainMenu = mainMenu
+        }
 }
 
 @MainActor
@@ -30,9 +40,11 @@ func runtilAppkitInit(ud: UnsafeMutableRawPointer, callback: @convention(c) (Uns
     let source = CFRunLoopSourceCreate(nil, 1, &source_cx)!;
     CFRunLoopAddSource(loop, source, .commonModes)
     
+    let delegate = RAppDelegate();
+    
     let app = NSApplication.shared;
     app.setActivationPolicy(.regular);
-    
+    app.delegate = delegate;
     
     RuntilAppkitState.shared.state = State(source: source, loop: loop)
 }
