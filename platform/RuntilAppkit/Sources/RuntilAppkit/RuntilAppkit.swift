@@ -7,7 +7,6 @@ struct State {
     var loop: CFRunLoop;
 }
 
-
 class RAppDelegate: NSObject, NSApplicationDelegate {
     var ud: UnsafeMutableRawPointer;
     var cbs: AppCbs;

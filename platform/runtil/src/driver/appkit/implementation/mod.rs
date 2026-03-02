@@ -38,12 +38,19 @@ extern "C" fn callback(s_ptr: *const c_void) {
     }
 }
 
+extern "C" fn cb_app_on_init(_p_ud: *const c_void) {}
+extern "C" fn cb_app_will_deinit(_p_ud: *const c_void) {}
+
 impl AppkitEventPump {
     pub fn new() -> Self {
         let source = QueueSource::new();
         let ptr = Arc::into_raw(source.clone());
+        let cbs = AppCbs {
+            on_init: cb_app_on_init,
+            will_deinit: cb_app_will_deinit,
+        };
         // SAFETY:
-        unsafe { runtilappkit_init(ptr as *const c_void, callback) };
+        unsafe { runtilappkit_init(ptr as *const c_void, callback, cbs) };
 
         AppkitEventPump { source }
     }
