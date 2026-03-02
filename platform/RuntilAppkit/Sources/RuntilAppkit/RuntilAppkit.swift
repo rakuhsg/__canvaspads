@@ -1,5 +1,6 @@
 import AppKit
 import CoreFoundation
+import RuntilAppkitTypes
 
 struct State {
     var source: CFRunLoopSource;
@@ -7,7 +8,31 @@ struct State {
 }
 
 class RAppDelegate: NSObject, NSApplicationDelegate {
+    var ud: UnsafeMutableRawPointer;
+    var cbs: AppCbs;
+    
+    init(ud: UnsafeMutableRawPointer, cbs: AppCbs) {
+        self.ud = ud;
+        self.cbs = cbs;
+    }
 
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        let mainMenu = NSMenu();
+
+        let appMenuItem = NSMenuItem();
+        mainMenu.addItem(appMenuItem);
+        let appMenu = NSMenu();
+        appMenuItem.submenu = appMenu;
+        appMenu.addItem(withTitle: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q");
+
+        NSApp.mainMenu = mainMenu;
+        
+        self.cbs.on_launch(self.ud);
+    }
+    
+    func applicationWillTerminate(_ notification: Notification) {
+        self.cbs.will_terminate(self.ud);
+    }
 }
 
 @MainActor
@@ -19,7 +44,7 @@ class RuntilAppkitState {
 
 @MainActor
 @_cdecl("runtilappkit_init")
-func runtilAppkitInit(ud: UnsafeMutableRawPointer, callback: @convention(c) (UnsafeMutableRawPointer?) -> Void) {
+func runtilAppkitInit(ud: UnsafeMutableRawPointer, callback: @convention(c) (UnsafeMutableRawPointer?) -> Void, appcbs: AppCbs) {
     let loop = RunLoop.current.getCFRunLoop();
     
     assert(RuntilAppkitState.shared.state == nil, "RuntilAppkitState is already initialized");
@@ -30,9 +55,11 @@ func runtilAppkitInit(ud: UnsafeMutableRawPointer, callback: @convention(c) (Uns
     let source = CFRunLoopSourceCreate(nil, 1, &source_cx)!;
     CFRunLoopAddSource(loop, source, .commonModes)
     
+    let delegate = RAppDelegate(ud: ud, cbs: appcbs);
+    
     let app = NSApplication.shared;
     app.setActivationPolicy(.regular);
-    
+    app.delegate = delegate;
     
     RuntilAppkitState.shared.state = State(source: source, loop: loop)
 }
