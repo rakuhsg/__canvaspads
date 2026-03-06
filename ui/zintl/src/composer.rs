@@ -1,13 +1,25 @@
-use crate::view::View;
+use crate::element::IntoElement;
+use crate::view::{Context, View};
 
-pub struct Composer<R> {
-    root: Box<dyn View<Output = R>>,
+pub struct Composer<R, V>
+where
+    V: View<Output = R>,
+{
+    root: V,
 }
 
-impl<R> Composer<R> {
-    pub fn new(root: Box<dyn View<Output = R>>) -> Self {
+impl<R, V> Composer<R, V>
+where
+    V: View<Output = R>,
+{
+    pub fn new(root: V) -> Self {
         Composer { root }
     }
 
-    pub fn render(&self) {}
+    pub fn render(&self) -> R {
+        let mut context = Context::new();
+        let a = self.root.render(&mut context);
+        let mut context = Context::new();
+        a.into_element(&mut context).inner
+    }
 }

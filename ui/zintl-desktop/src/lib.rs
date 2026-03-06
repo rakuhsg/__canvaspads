@@ -1,14 +1,59 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+use zintl::composer::Composer;
+pub use zintl::element::{Element, IntoElement};
+pub use zintl::view::{Context, View};
+
+#[derive(Clone, Debug)]
+pub enum RenderNode {
+    Text(String),
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+impl IntoElement for RenderNode {
+    type Output = RenderNode;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+    fn into_element(&self, _cx: &mut Context<RenderNode>) -> Element<RenderNode> {
+        Element {
+            inner: (*self).clone(),
+            dependencies: vec![],
+        }
+    }
+}
+
+pub struct Text {
+    content: String,
+}
+
+impl Text {
+    pub fn new(content: String) -> Self {
+        Text { content }
+    }
+}
+
+impl View for Text {
+    type Output = RenderNode;
+
+    fn render(&self, _cx: &mut Context<RenderNode>) -> impl IntoElement<Output = RenderNode> {
+        RenderNode::Text(self.content.clone())
+    }
+}
+
+pub struct App<V>
+where
+    V: View<Output = RenderNode> + 'static,
+{
+    composer: Composer<RenderNode, V>,
+}
+
+impl<V> App<V>
+where
+    V: View<Output = RenderNode> + 'static,
+{
+    pub fn new(root: V) -> Self {
+        App {
+            composer: Composer::new(root),
+        }
+    }
+
+    pub fn render(&self) -> RenderNode {
+        self.composer.render()
     }
 }
