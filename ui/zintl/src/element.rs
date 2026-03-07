@@ -1,5 +1,5 @@
 use crate::hook::HookId;
-use crate::view::Context;
+use crate::view::{Context, View};
 
 pub struct ElementContext<R> {
     phantom: std::marker::PhantomData<R>,
@@ -23,7 +23,21 @@ pub trait IntoElement {
     fn into_element(&self, cx: &mut ElementContext<Self::Output>) -> Element<Self::Output>;
 }
 
-pub struct Element<R> {
-    pub inner: R,
-    pub dependencies: Vec<HookId>,
+pub enum Element<R> {
+    Binded {
+        inner: Box<Element<R>>,
+        dependencies: Vec<HookId>,
+        builder: Box<dyn View<Output = R>>,
+    },
+    BindedList {
+        items: Vec<Element<R>>,
+        dependencies: Vec<HookId>,
+        builder: Box<dyn View<Output = R>>,
+    },
+    Normal {
+        inner: R,
+    },
+    NormalList {
+        items: Vec<Element<R>>,
+    },
 }

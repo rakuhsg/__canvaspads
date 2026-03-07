@@ -20,14 +20,21 @@ pub trait View {
     type Output;
 
     fn init(&mut self, _cx: &mut Context<Self::Output>) {}
-    fn render(&self, cx: &mut Context<Self::Output>) -> impl IntoElement<Output = Self::Output>;
+    fn render(&self, cx: &mut Context<Self::Output>) -> Element<Self::Output>;
     fn deinit(&mut self, _cx: &mut Context<Self::Output>) {}
 }
 
-impl<R, T: View<Output = R>> IntoElement for T {
+impl<R, T: View<Output = R> + Copy> IntoElement for T {
     type Output = R;
 
     fn into_element(&self, cx: &mut ElementContext<R>) -> Element<R> {
-        self.render(&mut cx.view_cx()).into_element(cx)
+        let mut view_cx = cx.view_cx();
+        let inner = self.render(&mut view_cx);
+
+        Element::Binded {
+            inner,
+            dependencies: view_cx.get_dependencies(),
+            builder: Box::new(Self),
+        }
     }
 }
