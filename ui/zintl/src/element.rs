@@ -24,20 +24,23 @@ pub trait IntoElement {
 }
 
 pub enum Element<R> {
+    Packed {
+        inner: Vec<Box<dyn IntoElement<Output = R>>>,
+    },
     Binded {
         inner: Box<Element<R>>,
         dependencies: Vec<HookId>,
-        builder: Box<dyn View<Output = R>>,
+        builder: Box<dyn IntoElement<Output = R>>,
     },
     BindedList {
-        items: Vec<Element<R>>,
+        inner: Vec<Element<R>>,
         dependencies: Vec<HookId>,
-        builder: Box<dyn View<Output = R>>,
+        builder: Box<dyn IntoElement<Output = R>>,
     },
     Normal {
         inner: R,
     },
-    NormalList {
-        items: Vec<Element<R>>,
+    List {
+        inner: Vec<Element<R>>,
     },
 }

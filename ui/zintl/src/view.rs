@@ -1,4 +1,5 @@
 use crate::element::{Element, ElementContext, IntoElement};
+use crate::hook::HookId;
 
 pub struct Context<R> {
     phantom: std::marker::PhantomData<R>,
@@ -9,6 +10,10 @@ impl<R> Context<R> {
         Self {
             phantom: std::marker::PhantomData,
         }
+    }
+
+    pub fn get_dependencies(&self) -> Vec<HookId> {
+        todo!()
     }
 
     pub fn child(&mut self) -> Self {
@@ -24,7 +29,7 @@ pub trait View {
     fn deinit(&mut self, _cx: &mut Context<Self::Output>) {}
 }
 
-impl<R, T: View<Output = R> + Copy> IntoElement for T {
+impl<R, T: View<Output = R> + Copy + 'static> IntoElement for T {
     type Output = R;
 
     fn into_element(&self, cx: &mut ElementContext<R>) -> Element<R> {
@@ -32,9 +37,9 @@ impl<R, T: View<Output = R> + Copy> IntoElement for T {
         let inner = self.render(&mut view_cx);
 
         Element::Binded {
-            inner,
+            inner: Box::new(inner),
             dependencies: view_cx.get_dependencies(),
-            builder: Box::new(Self),
+            builder: Box::new(*self),
         }
     }
 }
