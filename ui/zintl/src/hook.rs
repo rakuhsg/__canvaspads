@@ -1,20 +1,21 @@
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub struct HookId(usize);
+pub struct HookId(u32);
 
 impl HookId {
-    pub const UNINITIALIZED: Self = HookId(0);
+    pub const DEFAULT: Self = HookId(0);
 
-    pub fn new(id: usize) -> Self {
+    pub fn new(id: u32) -> Self {
         HookId(id)
     }
 
-    pub fn value(&self) -> usize {
+    pub fn value(&self) -> u32 {
         self.0
     }
 }
 
 pub trait Hook {
     type Message;
+
     fn init(&mut self, id: HookId);
     fn get_id(&self) -> HookId;
     fn handle_message(&mut self, cx: &mut HookContext, message: Self::Message);
