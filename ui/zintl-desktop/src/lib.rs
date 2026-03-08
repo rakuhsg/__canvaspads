@@ -31,10 +31,8 @@ impl Text {
 impl View for Text {
     type Output = RenderNode;
 
-    fn render(&self, _cx: &mut Context<RenderNode>) -> Element<RenderNode> {
-        elm! {
-            RenderNode::Text(self.content.clone())
-        }
+    fn render(&self, _cx: &mut Context<RenderNode>) -> impl IntoElement<Output = RenderNode> {
+        RenderNode::Text(self.content.clone())
     }
 }
 
@@ -56,6 +54,7 @@ where
     }
 
     pub fn render(&self) -> RenderNode {
-        self.composer.render()
+        // TODO
+        self.composer.render().unwrap()
     }
 }

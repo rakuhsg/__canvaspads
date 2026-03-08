@@ -25,7 +25,7 @@ pub trait View {
     type Output;
 
     fn init(&mut self, _cx: &mut Context<Self::Output>) {}
-    fn render(&self, cx: &mut Context<Self::Output>) -> Element<Self::Output>;
+    fn render(&self, cx: &mut Context<Self::Output>) -> impl IntoElement<Output = Self::Output>;
     fn deinit(&mut self, _cx: &mut Context<Self::Output>) {}
 }
 
@@ -34,7 +34,7 @@ impl<R, T: View<Output = R> + Copy + 'static> IntoElement for T {
 
     fn into_element(&self, cx: &mut ElementContext<R>) -> Element<R> {
         let mut view_cx = cx.view_cx();
-        let inner = self.render(&mut view_cx);
+        let inner = self.render(&mut view_cx).into_element(cx);
 
         Element::Binded {
             inner: Box::new(inner),
