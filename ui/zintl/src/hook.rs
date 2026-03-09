@@ -18,7 +18,6 @@ pub trait Hook {
 
     fn init(&mut self, id: HookId);
     fn get_id(&self) -> HookId;
-    fn handle_message(&mut self, cx: &mut HookContext, message: Self::Message);
 }
 
 pub struct HookContext {
