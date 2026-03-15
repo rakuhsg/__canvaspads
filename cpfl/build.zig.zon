@@ -1,0 +1,12 @@
+.{
+    .name = .cpfl,
+    .version = "0.0.0",
+    .minimum_zig_version = "0.16.0",
+    .dependencies = .{},
+    .fingerprint = 0x2b850ef31d37d337,
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
