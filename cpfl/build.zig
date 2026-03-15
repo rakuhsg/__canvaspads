@@ -1,6 +1,9 @@
 const std = @import("std");
 
-pub fn setupRhi(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) *std.Build.Step.Compile {
+pub fn setupRhi(b: *std.Build, options: *std.Build.Step.Options, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) *std.Build.Step.Compile {
+    const backend = b.option(enum { vulkan, d3d12, metal }, "rhi_backend", "RHI backend") orelse .vulkan;
+    options.addOption(@TypeOf(backend), "rhi_backend", backend);
+
     const mod = b.addModule("cpflrhi", .{
         .root_source_file = b.path("src/rhi/root.zig"),
         .target = target,
@@ -26,8 +29,9 @@ pub fn setupRhi(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+    const options = b.addOptions();
 
-    const lib_rhi = setupRhi(b, target, optimize);
+    const lib_rhi = setupRhi(b, options, target, optimize);
     b.installArtifact(lib_rhi);
     //const exe = b.addExecutable(.{
     //    .name = "demo",
