@@ -8,6 +8,8 @@ fn setupRunLoop(b: *std.Build, options: *std.Build.Step.Options, target: std.Bui
         .target = target,
         .optimize = optimize,
     });
+    mod.linkFramework("CoreFoundation", .{});
+    mod.link_libc = true;
 
     const tests = b.addTest(.{
         .root_module = mod,
