@@ -1,5 +1,55 @@
 const std = @import("std");
 
+fn setupMem(b: *std.Build, options: *std.Build.Step.Options, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) *std.Build.Step.Compile {
+    _ = options;
+
+    const mod = b.addModule("mem", .{
+        .root_source_file = b.path("src/mem/root.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const tests = b.addTest(.{
+        .root_module = mod,
+    });
+    const test_step = b.step("mem-test", "Run Mem module tests");
+    const run_tests = b.addRunArtifact(tests);
+    test_step.dependOn(&run_tests.step);
+
+    const lib = b.addLibrary(.{
+        .name = "cpflmem",
+        .linkage = .static,
+        .root_module = mod,
+    });
+
+    return lib;
+}
+
+fn setupString(b: *std.Build, options: *std.Build.Step.Options, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) *std.Build.Step.Compile {
+    _ = options;
+
+    const mod = b.addModule("string", .{
+        .root_source_file = b.path("src/string/root.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const tests = b.addTest(.{
+        .root_module = mod,
+    });
+    const test_step = b.step("string-test", "Run String module tests");
+    const run_tests = b.addRunArtifact(tests);
+    test_step.dependOn(&run_tests.step);
+
+    const lib = b.addLibrary(.{
+        .name = "cpflstring",
+        .linkage = .static,
+        .root_module = mod,
+    });
+
+    return lib;
+}
+
 fn setupRunLoop(b: *std.Build, options: *std.Build.Step.Options, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) *std.Build.Step.Compile {
     _ = options;
 
@@ -57,6 +107,9 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const options = b.addOptions();
+
+    const lib_mem = setupMem(b, options, target, optimize);
+    b.installArtifact(lib_mem);
 
     const lib_rhi = setupRhi(b, options, target, optimize);
     b.installArtifact(lib_rhi);
