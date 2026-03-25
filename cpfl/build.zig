@@ -111,6 +111,9 @@ pub fn build(b: *std.Build) void {
     const lib_mem = setupMem(b, options, target, optimize);
     b.installArtifact(lib_mem);
 
+    const lib_string = setupString(b, options, target, optimize);
+    b.installArtifact(lib_string);
+
     const lib_rhi = setupRhi(b, options, target, optimize);
     b.installArtifact(lib_rhi);
 
