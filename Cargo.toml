@@ -5,8 +5,6 @@ members = [
     "ui/zintl-desktop",
     "platform/wnd",
     "platform/runtil",
-    "graphics/gpu/ulexite",
-    "graphics/gpu/ulexite-winit",
     "nexus/nxc",
 ]
 
